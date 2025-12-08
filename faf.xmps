@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!DOCTYPE modbuspal_slave SYSTEM "modbuspal.dtd">
+<modbuspal_slave>
+<slave id="1" enabled="true" name="SLB_V200_REAL" implementation="modbus">
+<holding_registers>
+
+<!-- 모델명 SLB-2000 (ASCII 8바이트) -->
+<register address="30001" value="83"/>   <!-- S -->
+<register address="30002" value="76"/>   <!-- L -->
+<register address="30003" value="66"/>   <!-- B -->
+<register address="30004" value="45"/>   <!-- - -->
+<register address="30005" value="50"/>   <!-- 2 -->
+<register address="30006" value="48"/>   <!-- 0 -->
+<register address="30007" value="48"/>   <!-- 0 -->
+<register address="30008" value="48"/>   <!-- 0 -->
+
+<!-- 시리얼번호 -->
+<register address="30009" value="50"/>   <!-- 2 -->
+<register address="30010" value="49"/>   <!-- 1 -->
+<register address="30011" value="48"/>   <!-- 0 -->
+<register address="30012" value="56"/>   <!-- 8 -->
+<register address="30013" value="50"/>   <!-- 2 -->
+<register address="30014" value="52"/>   <!-- 4 -->
+<register address="30015" value="65"/>   <!-- A -->
+<register address="30016" value="48"/>   <!-- 0 -->
+
+<!-- S/W Version -->
+<register address="30017" value="10530"/>
+
+<!-- 인버터 용량 -->
+<register address="30018" value="2000"/>
+
+<!-- STRING_NUM -->
+<register address="30019" value="6"/>
+
+<!-- ID -->
+<register address="30020" value="1"/>
+
+<!-- Password -->
+<register address="30021" value="1234"/>
+
+<!-- Install Year / MonthDay -->
+<register address="30022" value="2021"/>
+<register address="30023" value="824"/>
+
+<!-- MAC -->
+<register address="30024" value="202"/>
+<register address="30025" value="168"/>
+<register address="30026" value="15"/>
+
+<!-- LOCAL IP: 192.168.0.50 -->
+<register address="30027" value="192"/>
+<register address="30028" value="168"/>
+<register address="30029" value="0"/>
+<register address="30030" value="50"/>
+
+<!-- SUBNET MASK -->
+<register address="30031" value="255"/>
+<register address="30032" value="255"/>
+
+<!-- REMOTE IP -->
+<register address="30033" value="192"/>
+<register address="30034" value="168"/>
+
+<!-- PORT -->
+<register address="30035" value="502"/>
+<register address="30036" value="502"/>
+
+<!-- BAUD RATE -->
+<register address="30037" value="19200"/>
+<register address="30038" value="0"/>
+<register address="30039" value="8"/>
+<register address="30040" value="0"/>
+
+<!-- 현재 시각 2025-12-03 14:32:10 -->
+<register address="30049" value="2025"/>
+<register address="30050" value="12"/>
+<register address="30051" value="3"/>
+<register address="30052" value="14"/>
+<register address="30053" value="32"/>
+<register address="30054" value="10"/>
+
+<!-- PV 입력 -->
+<register address="30061" value="6800"/>   <!-- 680.0V -->
+<register address="30062" value="125"/>    <!-- 12.5A -->
+<register address="30063" value="85000"/>  <!-- 8.5kW -->
+
+<!-- DCN Volt -->
+<register address="30065" value="6400"/>
+
+<!-- INV RS/ST/TR -->
+<register address="30066" value="6900"/>
+<register address="30067" value="6850"/>
+<register address="30068" value="6880"/>
+
+<!-- 계통 전압 -->
+<register address="30069" value="2293"/>
+<register address="30070" value="2301"/>
+<register address="30071" value="2314"/>
+
+<!-- 계통 전류 -->
+<register address="30072" value="182"/>    <!-- 18.2 A -->
+<register address="30073" value="178"/>
+<register address="30074" value="180"/>
+
+<!-- 유효전력 -->
+<register address="30075" value="15500"/>
+
+<!-- 무효전력 -->
+<register address="30076" value="0"/>
+<register address="30077" value="2200"/>
+
+<!-- 역률 0.93 → scale 0.01 = 93 -->
+<register address="30079" value="93"/>
+
+<!-- 주파수 60.00 Hz → 6000 -->
+<register address="30080" value="6000"/>
+
+<!-- 스택온도 48.5°C → 485 -->
+<register address="30081" value="485"/>
+
+<!-- AD0~AD3 -->
+<register address="30082" value="12"/>
+<register address="30083" value="38"/>
+<register address="30084" value="50"/>
+<register address="30085" value="33"/>
+
+<!-- Restart time -->
+<register address="30086" value="15"/>
+
+<!-- 운전모드 RUN -->
+<register address="30087" value="3"/>
+
+<!-- Anti-PID 상태 -->
+<register address="30088" value="1"/>
+
+<!-- 누적 전력량 -->
+<register address="30089" value="0"/>
+<register address="30090" value="5120"/>
+<register address="30091" value="35120"/>
+
+<!-- 오늘 발전량 -->
+<register address="30093" value="13200"/>
+
+<!-- 피크 값 -->
+<register address="30095" value="21000"/>
+<register address="30097" value="16800"/>
+
+<!-- Maximum Active Power -->
+<register address="30099" value="2000"/>
+
+</holding_registers>
+
+<coils>
+</coils>
+
+<tuning>
+<reply_delay min="0" max="0" />
+<error_rates no_reply="0.0" />
+</tuning>
+
+</slave>
+</modbuspal_slave>

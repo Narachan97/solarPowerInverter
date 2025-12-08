@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modbuspal-project version="1.6c">
+
+  <tcpdispatcher port="502" running="false"/>
+
+  <slaves>
+    <slave id="1" name="SLB_V200_REAL">
+      <registers>
+
+        <!-- 모델명: SLB-2000 -->
+        <inputregister address="30001" value="83"/>  <!-- S -->
+        <inputregister address="30002" value="76"/>  <!-- L -->
+        <inputregister address="30003" value="66"/>  <!-- B -->
+        <inputregister address="30004" value="45"/>  <!-- - -->
+        <inputregister address="30005" value="50"/>  <!-- 2 -->
+        <inputregister address="30006" value="48"/>  <!-- 0 -->
+        <inputregister address="30007" value="48"/>  <!-- 0 -->
+        <inputregister address="30008" value="48"/>  <!-- 0 -->
+
+        <!-- 시리얼번호 -->
+        <inputregister address="30009" value="50"/>  <!-- 2 -->
+        <inputregister address="30010" value="49"/>  <!-- 1 -->
+        <inputregister address="30011" value="48"/>  <!-- 0 -->
+        <inputregister address="30012" value="56"/>  <!-- 8 -->
+        <inputregister address="30013" value="50"/>  <!-- 2 -->
+        <inputregister address="30014" value="52"/>  <!-- 4 -->
+        <inputregister address="30015" value="65"/>  <!-- A -->
+        <inputregister address="30016" value="48"/>  <!-- 0 -->
+
+        <!-- S/W Version -->
+        <inputregister address="30017" value="10530"/>
+
+        <!-- 인버터 용량 (kW) -->
+        <inputregister address="30018" value="2000"/>
+
+        <!-- STRING_NUM -->
+        <inputregister address="30019" value="6"/>
+
+        <!-- ID -->
+        <inputregister address="30020" value="1"/>
+
+        <!-- Password -->
+        <inputregister address="30021" value="1234"/>
+
+        <!-- Install Year / MonthDay -->
+        <inputregister address="30022" value="2021"/>
+        <inputregister address="30023" value="824"/>
+
+        <!-- MAC -->
+        <inputregister address="30024" value="202"/>
+        <inputregister address="30025" value="168"/>
+        <inputregister address="30026" value="15"/>
+
+        <!-- LOCAL IP: 192.168.0.50 -->
+        <inputregister address="30027" value="192"/>
+        <inputregister address="30028" value="168"/>
+        <inputregister address="30029" value="0"/>
+        <inputregister address="30030" value="50"/>
+
+        <!-- SUBNET MASK -->
+        <inputregister address="30031" value="255"/>
+        <inputregister address="30032" value="255"/>
+
+        <!-- REMOTE IP -->
+        <inputregister address="30033" value="192"/>
+        <inputregister address="30034" value="168"/>
+
+        <!-- PORT -->
+        <inputregister address="30035" value="502"/>
+        <inputregister address="30036" value="502"/>
+
+        <!-- BAUD RATE -->
+        <inputregister address="30037" value="19200"/>
+
+        <!-- UNUSED -->
+        <inputregister address="30038" value="0"/>
+        <inputregister address="30039" value="8"/>
+        <inputregister address="30040" value="0"/>
+
+        <!-- 현재 시각 -->
+        <inputregister address="30049" value="2025"/>
+        <inputregister address="30050" value="12"/>
+        <inputregister address="30051" value="3"/>
+        <inputregister address="30052" value="14"/>
+        <inputregister address="30053" value="32"/>
+        <inputregister address="30054" value="10"/>
+
+        <!-- PV 입력 -->
+        <inputregister address="30061" value="6800"/>  <!-- 680.0V -->
+        <inputregister address="30062" value="125"/>   <!-- 12.5A -->
+        <inputregister address="30063" value="85000"/> <!-- 8500W (0.1 scale) -->
+
+        <!-- DCN VOLT -->
+        <inputregister address="30065" value="6400"/>
+
+        <!-- INV RS/ST/TR -->
+        <inputregister address="30066" value="6900"/>
+        <inputregister address="30067" value="6850"/>
+        <inputregister address="30068" value="6880"/>
+
+        <!-- 계통 전압 -->
+        <inputregister address="30069" value="2293"/> <!-- L1 -->
+        <inputregister address="30070" value="2301"/> <!-- L2 -->
+        <inputregister address="30071" value="2314"/> <!-- L3 -->
+
+        <!-- 계통 전류 -->
+        <inputregister address="30072" value="182"/>  <!-- 18.2 A -->
+        <inputregister address="30073" value="178"/>
+        <inputregister address="30074" value="180"/>
+
+        <!-- 유효전력 -->
+        <inputregister address="30075" value="15500"/>
+
+        <!-- 무효전력 -->
+        <inputregister address="30077" value="2200"/>
+
+        <!-- 역률 (0.93 → scale 0.01 → 93) -->
+        <inputregister address="30079" value="93"/>
+
+        <!-- 주파수 60.00Hz → 6000 -->
+        <inputregister address="30080" value="6000"/>
+
+        <!-- 스택 최고 온도 48.5°C → scale 0.1 → 485 -->
+        <inputregister address="30081" value="485"/>
+
+        <!-- AD0~AD3 -->
+        <inputregister address="30082" value="12"/>
+        <inputregister address="30083" value="38"/>
+        <inputregister address="30084" value="50"/>
+        <inputregister address="30085" value="33"/>
+
+        <!-- Restart time sec -->
+        <inputregister address="30086" value="15"/>
+
+        <!-- 운전모드 RUN -->
+        <inputregister address="30087" value="3"/>
+
+        <!-- Anti-PID 상태 정상 -->
+        <inputregister address="30088" value="1"/>
+
+        <!-- 누적 Wh / kWh -->
+        <inputregister address="30089" value="0"/>
+        <inputregister address="30090" value="5120"/>   <!-- 51.20 kWh -->
+        <inputregister address="30091" value="35120"/>  <!-- 35120 kWh -->
+
+        <!-- 오늘 누적 Wh -->
+        <inputregister address="30093" value="13200"/>  <!-- 13.2 kWh -->
+
+        <!-- Peak Power -->
+        <inputregister address="30095" value="21000"/>
+        <inputregister address="30097" value="16800"/>
+
+        <!-- Maximum Active Power -->
+        <inputregister address="30099" value="2000"/>
+
+      </registers>
+    </slave>
+  </slaves>
+
+</modbuspal-project>
