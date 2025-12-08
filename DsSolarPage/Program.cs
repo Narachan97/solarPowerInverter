@@ -60,7 +60,7 @@ internal class Program
         // --------------------------------------------
 
         Console.WriteLine();
-        Console.WriteLine("=== 동적 데이터 수집 시작 (10초 간격) ===");
+        Console.WriteLine("=== 동적 데이터 수집 시작 (60초 간격) ===");
 
         var dynReader = new DynamicDataReader(inverterIp, port);
         var dynRepo = new DynamicRepository(connStr);
