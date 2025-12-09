@@ -58,7 +58,7 @@ internal class Program
             catch (Exception ex)
             {
                 Console.WriteLine($"[정적/연결 오류] {ex.Message}");
-                Console.WriteLine("[정적] 60초 후 다시 시도합니다...12121212");
+                Console.WriteLine("[정적] 60초 후 다시 시도합니다...");
                 Thread.Sleep(60000);  // 1분 후 재시도
             }
         }
@@ -70,7 +70,7 @@ internal class Program
         // -------------------------------------------------------
 
         Console.WriteLine();
-        Console.WriteLine("=== 동적 데이터 수집 시작 (10초 간격) ===");
+        Console.WriteLine("=== 동적 데이터 수집 시작 (60초 간격) ===");
 
         var dynRepo = new DynamicRepository(connStr);
 
@@ -95,7 +95,7 @@ internal class Program
                 Console.WriteLine("[동적] 다음 회차에서 다시 시도합니다.");
             }
 
-            Thread.Sleep(10000); // ★ 성공/실패 상관없이 60초마다 반복
+            Thread.Sleep(60000); // ★ 성공/실패 상관없이 60초마다 반복
         }
     }
 }
