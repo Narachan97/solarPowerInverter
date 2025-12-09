@@ -23,6 +23,7 @@ internal class Program
         //    → 인버터/통신/DB 중 하나라도 실패하면
         //      60초 후 다시 시도, 성공할 때까지 반복
         // -------------------------------------------------------
+        Console.WriteLine($"{ inverterIp} : IP 로 접속중");
         Console.WriteLine("=== 정적 데이터 수집 시작 ===");
 
         while (true)
