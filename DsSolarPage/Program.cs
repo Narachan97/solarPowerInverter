@@ -23,7 +23,7 @@ internal class Program
         //    → 인버터/통신/DB 중 하나라도 실패하면
         //      60초 후 다시 시도, 성공할 때까지 반복
         // -------------------------------------------------------
-        Console.WriteLine("=== 정적 데이터 수집 시작1212 ===");
+        Console.WriteLine("=== 정적 데이터 수집 시작 ===");
 
         while (true)
         {
@@ -58,7 +58,7 @@ internal class Program
             catch (Exception ex)
             {
                 Console.WriteLine($"[정적/연결 오류] {ex.Message}");
-                Console.WriteLine("[정적] 60초 후 다시 시도합니다...");
+                Console.WriteLine("[정적] 60초 후 다시 시도합니다...12121212");
                 Thread.Sleep(60000);  // 1분 후 재시도
             }
         }
