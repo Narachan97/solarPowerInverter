@@ -8,7 +8,7 @@ internal class Program
         Console.WriteLine("=== Solar Collector 시작 ===");
 
         // 인버터 정보
-        string inverterIp = "192.168.21.10";   // 실제 인버터 주소
+        string inverterIp = "192.168.10.13";   // 실제 인버터 주소
         int port = 502;
 
         // DB 연결 정보
