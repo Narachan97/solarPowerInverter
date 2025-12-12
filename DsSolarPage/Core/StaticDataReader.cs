@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using EasyModbus;
 
-
 public class StaticDataReader
 {
     private ModbusClient client;
@@ -62,22 +61,49 @@ public class StaticDataReader
         return info;
     }
 
+    /* =========================
+       Register Read Helpers
+       ========================= */
+
     private ushort ReadU16(int address)
     {
-        return (ushort)client.ReadHoldingRegisters(address - 1, 1)[0];
+        int[] regs = ReadRegisters(address, 1);
+        return (ushort)regs[0];
     }
 
     private string ReadString(int address, int length)
     {
-        var arr = client.ReadHoldingRegisters(address - 1, length);
+        int[] regs = ReadRegisters(address, length);
         byte[] buf = new byte[length * 2];
 
         for (int i = 0; i < length; i++)
         {
-            buf[i * 2] = (byte)(arr[i] >> 8);
-            buf[i * 2 + 1] = (byte)(arr[i] & 0xFF);
+            buf[i * 2] = (byte)(regs[i] >> 8);
+            buf[i * 2 + 1] = (byte)(regs[i] & 0xFF);
         }
 
         return Encoding.ASCII.GetString(buf).Trim('\0', ' ');
+    }
+
+    /// <summary>
+    /// 주소에 따라 Input / Holding Register 자동 분기
+    /// </summary>
+    private int[] ReadRegisters(int address, int quantity)
+    {
+        // 30001 ~ 39999 : Input Register
+        if (address >= 30001 && address <= 39999)
+        {
+            int start = address - 30001;
+            return client.ReadInputRegisters(start, quantity);
+        }
+
+        // 40001 ~ 49999 : Holding Register
+        if (address >= 40001 && address <= 49999)
+        {
+            int start = address - 40001;
+            return client.ReadHoldingRegisters(start, quantity);
+        }
+
+        throw new ArgumentException($"지원하지 않는 Modbus 주소: {address}");
     }
 }
