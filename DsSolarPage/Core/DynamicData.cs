@@ -4,52 +4,54 @@
     public int StackNo { get; set; }
     public DateTime MeasuredAt { get; set; }
 
-    public float PvVoltage { get; set; }
-    public float PvCurrent { get; set; }
-    public float PvPower { get; set; }
+    public ushort PvVoltage { get; set; }
+    public ushort PvCurrent { get; set; }
+    public int PvPower { get; set; }
 
-    public float DcnVoltage { get; set; }
+    public ushort DcnVoltage { get; set; }
 
-    public float InvRsVoltage { get; set; }
-    public float InvStVoltage { get; set; }
-    public float InvTrVoltage { get; set; }
+    public ushort InvRsVoltage { get; set; }
+    public ushort InvStVoltage { get; set; }
+    public ushort InvTrVoltage { get; set; }
 
-    public float L1Voltage { get; set; }
-    public float L2Voltage { get; set; }
-    public float L3Voltage { get; set; }
+    public ushort L1Voltage { get; set; }
+    public ushort L2Voltage { get; set; }
+    public ushort L3Voltage { get; set; }
 
-    public float L1Current { get; set; }
-    public float L2Current { get; set; }
-    public float L3Current { get; set; }
+    public ushort L1Current { get; set; }
+    public ushort L2Current { get; set; }
+    public ushort L3Current { get; set; }
 
-    public float ActivePowerTotal { get; set; }
-    public float ReactivePowerTotal { get; set; }
-    public float PowerFactorTotal { get; set; }
+    public int ActivePowerTotal { get; set; }
+    public int ReactivePowerTotal { get; set; }
+    public ushort PowerFactorTotal { get; set; }
 
-    public float Frequency { get; set; }
-    public float StackTemp { get; set; }
+    // 일단 주파수 쪽 숫자 맞춰주기 소수점 찍어주기 이건 테스트해봐야함
+    public ushort Frequency { get; set; }
+    public short StackTemp { get; set; }
 
-    public long TodayWh { get; set; }
-    public long AccumKwh { get; set; }
+    public uint TodayWh { get; set; }
+    public uint AccumKwh { get; set; }
+    public ushort AccumWh { get; set; }
 
-    public int RunMode { get; set; }
+    public ushort RunMode { get; set; }
 
-    public int FaultBits0_15 { get; set; }
-    public int FaultBits16_31 { get; set; }
-    public int FaultBits32_47 { get; set; }
-    public int FaultBits48_63 { get; set; }
+    public ushort FaultBits0_15 { get; set; }
+    public ushort FaultBits16_31 { get; set; }
+    public ushort FaultBits32_47 { get; set; }
+    public ushort FaultBits48_63 { get; set; }
 
     // 🔽 여기부터 새로 추가한 애들
 
-    public int Ad0 { get; set; }
-    public int Ad1 { get; set; }
-    public int Ad2 { get; set; }
-    public int Ad3 { get; set; }
+    public short Ad0 { get; set; }
+    public short Ad1 { get; set; }
+    public short Ad2 { get; set; }
+    public short Ad3 { get; set; }
 
-    public int RestartTime { get; set; }
-    public int AntiPidState { get; set; }
+    public short RestartTime { get; set; }
+    public ushort AntiPidState { get; set; }
 
-    public long PeakPowerInstall { get; set; }
-    public long PeakPowerToday { get; set; }
-    public long MaxActivePower { get; set; }
+    public uint PeakPowerInstall { get; set; }
+    public uint PeakPowerToday { get; set; }
+    public ushort MaxActivePower { get; set; }
 }

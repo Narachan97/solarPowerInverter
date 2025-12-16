@@ -13,6 +13,7 @@ public class DynamicRepository
     public void Insert(DynamicData d)
     {
         using var conn = new MySqlConnection(_connStr);
+
         conn.Open();
 
         string sql = @"
@@ -111,5 +112,8 @@ public class DynamicRepository
         cmd.Parameters.AddWithValue("@max_active", d.MaxActivePower);
 
         cmd.ExecuteNonQuery();
+        conn.Close();
     }
+
+
 }

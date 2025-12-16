@@ -48,6 +48,12 @@ INSERT INTO static_info
     com3_parity,
     com3_stop_bit,
     com3_flow_control,
+local_ip_text,
+mac_text,
+gateway_text,
+subnet_mask_text,
+remote_ip_text,
+
     flash_address
 )
 VALUES
@@ -85,6 +91,11 @@ VALUES
     @com3_parity,
     @com3_stop_bit,
     @com3_flow_control,
+@local_ip_text,
+@mac_text,
+@gateway_text,
+@subnet_mask_text,
+@remote_ip_text,
     @flash_address
 );";
 
@@ -133,6 +144,12 @@ VALUES
             cmd.Parameters.AddWithValue("@com3_flow_control", info.Com3FlowControl);
 
             cmd.Parameters.AddWithValue("@flash_address", info.FlashAddress);
+            cmd.Parameters.AddWithValue("@local_ip_text", info.LocalIpText);
+            cmd.Parameters.AddWithValue("@mac_text", info.MacText);
+
+            cmd.Parameters.AddWithValue("@gateway_text", info.GatewayText);
+            cmd.Parameters.AddWithValue("@subnet_mask_text", info.SubnetMaskText);
+            cmd.Parameters.AddWithValue("@remote_ip_text", info.RemoteIpText);
 
             cmd.ExecuteNonQuery();
         }
