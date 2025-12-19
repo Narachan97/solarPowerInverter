@@ -6,10 +6,11 @@ public class DynamicDataReader : IDisposable
     private readonly ModbusClient client;
     private bool _disposed;
 
+    // ✅ PDF 30001을 0번으로 맞추는 Input Register 기준
+    private const int INPUT_BASE = 30001;
+
     public DynamicDataReader(string ip, int port)
     {
-
-
         //// ============================
         //// ② RTU(Modbus RTU, RS-485)로 사용할 때
         ////    - 위 TCP용 부분을 전부 주석 처리하고
@@ -46,7 +47,7 @@ public class DynamicDataReader : IDisposable
         // PV / DC / AC
         data.PvVoltage = ReadU16(30061 + offset);
         data.PvCurrent = ReadU16(30062 + offset);
-        data.PvPower = ReadS32(30063 + offset);   // int32
+        data.PvPower = ReadS32(30063 + offset);   // int32 (2 regs)
 
         data.DcnVoltage = ReadU16(30065 + offset);
         data.InvRsVoltage = ReadU16(30066 + offset);
@@ -64,9 +65,9 @@ public class DynamicDataReader : IDisposable
         // 전력/역률/주파수/온도
         data.ActivePowerTotal = ReadS32(30075 + offset);
         data.ReactivePowerTotal = ReadS32(30077 + offset);
-        data.PowerFactorTotal = ReadU16(30079 + offset);  // / 1000.0f 예: 스케일 0.001 가정
-        data.Frequency = ReadU16(30080 + offset);   // / 100.0f 예: 0.01 Hz 스케일 가정
-        data.StackTemp = ReadS16(30081 + offset);    // / 10.0f 예: 0.1 ℃ 스케일 가정
+        data.PowerFactorTotal = ReadU16(30079 + offset);
+        data.Frequency = ReadU16(30080 + offset);
+        data.StackTemp = ReadS16(30081 + offset);
 
         // AD0~AD3 : 30082~30085
         data.Ad0 = ReadS16(30082 + offset);
@@ -76,6 +77,7 @@ public class DynamicDataReader : IDisposable
 
         // Restart Time : 30086
         data.RestartTime = ReadS16(30086 + offset);
+
         // 운전 모드
         data.RunMode = ReadU16(30087 + offset);
 
@@ -83,35 +85,44 @@ public class DynamicDataReader : IDisposable
         data.AntiPidState = ReadU16(30088 + offset);
 
         // 누적/오늘 발전량 (PDF: 30090~30094)
-        data.AccumWh = ReadU16(30090 + offset);   // 30090 : 누적 전력량(Wh)   Uint16(F002)
-        data.AccumKwh = ReadU32(30091 + offset);   // 30091~30092 : 누적(kWh)    Uint32(F004)
-        data.TodayWh = ReadU32(30093 + offset);   // 30093~30094 : 오늘 누적(Wh) Uint32(F004)
+        data.AccumWh = ReadU16(30090 + offset);       // Uint16
+        data.AccumKwh = ReadU32(30091 + offset);      // Uint32 (2 regs)
+        data.TodayWh = ReadU32(30093 + offset);       // Uint32 (2 regs)
 
         // Peak / Max (PDF: 30095~30099)
-        data.PeakPowerInstall = ReadU32(30095 + offset); // 30095~30096 : Peak Power after Installation  Uint32(F004)
-        data.PeakPowerToday = ReadU32(30097 + offset); // 30097~30098 : Peak Power Today               Uint32(F004)
-        data.MaxActivePower = ReadU16(30099 + offset); // 30099 : Maximum Active_power  
-
-
-
+        data.PeakPowerInstall = ReadU32(30095 + offset); // Uint32 (2 regs)
+        data.PeakPowerToday = ReadU32(30097 + offset);   // Uint32 (2 regs)
+        data.MaxActivePower = ReadU16(30099 + offset);   // Uint16
 
         return data;
     }
 
+    // =========================
+    // ✅ 핵심 변경: FC04 + 30001 기준 오프셋
+    // =========================
+
+    private int ToInputOffset(int address)
+    {
+        int off = address - INPUT_BASE; // 30001 -> 0
+        if (off < 0) throw new ArgumentOutOfRangeException(nameof(address), $"Input Register address must be >= {INPUT_BASE}");
+        return off;
+    }
+
     private ushort ReadU16(int address)
     {
-        return (ushort)client.ReadHoldingRegisters(address - 1, 1)[0];
+        return (ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0];
     }
 
     private short ReadS16(int address)
     {
-        return (short)client.ReadHoldingRegisters(address - 1, 1)[0];
+        // 레지스터는 0~65535(int)로 들어오므로, signed로 해석하려면 ushort->short 변환이 안전합니다.
+        return unchecked((short)(ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0]);
     }
 
     private int ReadS32(int address)
     {
         // int32 → 레지스터 2개 사용 (High, Low)
-        int[] regs = client.ReadHoldingRegisters(address - 1, 2);
+        int[] regs = client.ReadInputRegisters(ToInputOffset(address), 2);
         int high = regs[0];
         int low = regs[1];
         int value = (high << 16) | (low & 0xFFFF);
@@ -120,14 +131,14 @@ public class DynamicDataReader : IDisposable
 
     private uint ReadU32(int address)
     {
-        int[] regs = client.ReadHoldingRegisters(address - 1, 2);
+        int[] regs = client.ReadInputRegisters(ToInputOffset(address), 2);
         uint high = (uint)regs[0];
         uint low = (uint)regs[1];
         uint value = (high << 16) | (low & 0xFFFF);
         return value;
     }
 
-    // ✅ 추가: Modbus 연결 종료(정석)
+    // ✅ Modbus 연결 종료
     public void Dispose()
     {
         if (_disposed) return;
@@ -142,7 +153,7 @@ public class DynamicDataReader : IDisposable
         }
         catch
         {
-            // 종료 과정 예외는 무시 (정리하다가 프로그램이 죽는 것 방지)
+            // 종료 과정 예외는 무시
         }
     }
 }

@@ -7,6 +7,9 @@ public class StaticDataReader : IDisposable
     private ModbusClient client;
     private bool _disposed;
 
+    // ✅ Input Register 기준 시작 주소 (PDF의 30001을 0으로 맞추기 위함)
+    private const int INPUT_BASE = 30001;
+
     public StaticDataReader(string ip, int port)
     {
         client = new ModbusClient(ip, port);
@@ -46,14 +49,14 @@ public class StaticDataReader : IDisposable
         info.RemotePort = ReadU16(30036);
 
         // COM2
-        info.Com2Baudrate = ReadU32(30037);
+        info.Com2Baudrate = ReadU32(30037); // 30037~30038
         info.Com2DataBits = ReadU16(30039);
         info.Com2Parity = ReadU16(30040);
         info.Com2StopBit = ReadU16(30041);
         info.Com2FlowControl = ReadU16(30042);
 
         // COM3
-        info.Com3Baudrate = ReadU32(30043);
+        info.Com3Baudrate = ReadU32(30043); // 30043~30044
         info.Com3DataBits = ReadU16(30045);
         info.Com3Parity = ReadU16(30046);
         info.Com3StopBit = ReadU16(30047);
@@ -71,25 +74,36 @@ public class StaticDataReader : IDisposable
         return info;
     }
 
+    // ✅ 여기부터 “Input Register(FC04) + 30001 기준 오프셋”으로 변경
+
+    private int ToInputOffset(int address)
+    {
+        // address=30001 -> 0
+        // address=30002 -> 1 ...
+        int offset = address - INPUT_BASE;
+        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(address), $"Input Register address must be >= {INPUT_BASE}");
+        return offset;
+    }
+
     private ushort ReadU16(int address)
     {
-        return (ushort)client.ReadHoldingRegisters(address - 1, 1)[0];
+        return (ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0];
     }
 
     private uint ReadU32(int address)
     {
-        var regs = client.ReadHoldingRegisters(address - 1, 2);
+        var regs = client.ReadInputRegisters(ToInputOffset(address), 2);
         return ((uint)regs[0] << 16) | (uint)regs[1];
     }
 
     private short ReadS16(int address)
     {
-        return (short)client.ReadHoldingRegisters(address - 1, 1)[0];
+        return unchecked((short)(ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0]);
     }
 
     private string ReadStringF006_Swapped(int address, int length)
     {
-        var arr = client.ReadHoldingRegisters(address - 1, length);
+        var arr = client.ReadInputRegisters(ToInputOffset(address), length);
         byte[] buf = new byte[length * 2];
 
         for (int i = 0; i < length; i++)
@@ -123,7 +137,6 @@ public class StaticDataReader : IDisposable
         return s.Substring(0, cut).Trim();
     }
 
-    // ✅ 추가된 핵심 부분 (정석)
     public void Dispose()
     {
         if (_disposed) return;
@@ -138,7 +151,7 @@ public class StaticDataReader : IDisposable
         }
         catch
         {
-            // 종료 중 예외는 무시 (정리하다 죽는 것 방지)
+            // 종료 중 예외는 무시
         }
     }
 
@@ -163,4 +176,3 @@ public class StaticDataReader : IDisposable
         return $"{a:X2}:{b:X2}:{c:X2}:{d:X2}:{e:X2}:{f:X2}";
     }
 }
-
