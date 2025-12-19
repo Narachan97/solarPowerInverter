@@ -123,8 +123,8 @@ public class DynamicDataReader : IDisposable
     {
         // int32 → 레지스터 2개 사용 (High, Low)
         int[] regs = client.ReadInputRegisters(ToInputOffset(address), 2);
-        int high = regs[0];
-        int low = regs[1];
+        int high = regs[1];
+        int low = regs[0];
         int value = (high << 16) | (low & 0xFFFF);
         return value;
     }
@@ -132,8 +132,8 @@ public class DynamicDataReader : IDisposable
     private uint ReadU32(int address)
     {
         int[] regs = client.ReadInputRegisters(ToInputOffset(address), 2);
-        uint high = (uint)regs[0];
-        uint low = (uint)regs[1];
+        uint high = (uint)regs[1];
+        uint low = (uint)regs[0];
         uint value = (high << 16) | (low & 0xFFFF);
         return value;
     }
