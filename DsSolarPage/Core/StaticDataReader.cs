@@ -7,9 +7,6 @@ public class StaticDataReader : IDisposable
     private ModbusClient client;
     private bool _disposed;
 
-    // ✅ PDF의 INPUT REGISTER(30001 시작) 기준 오프셋
-    private const int INPUT_BASE = 30001;
-
     public StaticDataReader(string ip, int port)
     {
         client = new ModbusClient(ip, port);
@@ -74,30 +71,25 @@ public class StaticDataReader : IDisposable
         return info;
     }
 
-    // ✅ PDF의 "Address" 컬럼 기준: 30001 -> 0, 30017 -> 16 ...
-    private int ToInputOffset(int address) => address - INPUT_BASE;
-
     private ushort ReadU16(int address)
     {
-        return (ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0];
+        return (ushort)client.ReadHoldingRegisters(address - 1, 1)[0];
     }
 
     private uint ReadU32(int address)
     {
-        var regs = client.ReadInputRegisters(ToInputOffset(address), 2);
+        var regs = client.ReadHoldingRegisters(address - 1, 2);
         return ((uint)regs[0] << 16) | (uint)regs[1];
     }
 
     private short ReadS16(int address)
     {
-        // ReadInputRegisters는 int[] 반환이므로 ushort->short 캐스팅 안전하게 처리
-        ushort u = (ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0];
-        return unchecked((short)u);
+        return (short)client.ReadHoldingRegisters(address - 1, 1)[0];
     }
 
     private string ReadStringF006_Swapped(int address, int length)
     {
-        var arr = client.ReadInputRegisters(ToInputOffset(address), length);
+        var arr = client.ReadHoldingRegisters(address - 1, length);
         byte[] buf = new byte[length * 2];
 
         for (int i = 0; i < length; i++)
@@ -131,6 +123,7 @@ public class StaticDataReader : IDisposable
         return s.Substring(0, cut).Trim();
     }
 
+    // ✅ 추가된 핵심 부분 (정석)
     public void Dispose()
     {
         if (_disposed) return;
@@ -145,7 +138,7 @@ public class StaticDataReader : IDisposable
         }
         catch
         {
-            // 종료 중 예외는 무시
+            // 종료 중 예외는 무시 (정리하다 죽는 것 방지)
         }
     }
 
@@ -170,3 +163,4 @@ public class StaticDataReader : IDisposable
         return $"{a:X2}:{b:X2}:{c:X2}:{d:X2}:{e:X2}:{f:X2}";
     }
 }
+
