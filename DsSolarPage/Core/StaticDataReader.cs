@@ -93,8 +93,13 @@ public class StaticDataReader : IDisposable
     private uint ReadU32(int address)
     {
         var regs = client.ReadInputRegisters(ToInputOffset(address), 2);
-        return ((uint)regs[0] << 16) | (uint)regs[1];
+
+        uint low = (uint)regs[0];  // ✅ low = 0
+        uint high = (uint)regs[1];  // ✅ high = 1
+
+        return (high << 16) | (low & 0xFFFF);
     }
+
 
     private short ReadS16(int address)
     {
