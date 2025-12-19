@@ -27,6 +27,7 @@ public class DynamicRepository
         active_power_total, reactive_power_total, power_factor_total,
         frequency, stack_temp,
         today_wh, accum_kwh,
+        accum_wh,
         run_mode,
         fault_bits_0_15, fault_bits_16_31,
         fault_bits_32_47, fault_bits_48_63,
@@ -47,6 +48,7 @@ public class DynamicRepository
         @act_p, @react_p, @pf,
         @freq, @temp,
         @today_wh, @accum_kwh,
+        @accum_wh,
         @run_mode,
         @fb0, @fb1, @fb2, @fb3,
         @ad0, @ad1, @ad2, @ad3,
@@ -90,6 +92,8 @@ public class DynamicRepository
         cmd.Parameters.AddWithValue("@temp", d.StackTemp);
 
         cmd.Parameters.AddWithValue("@today_wh", d.TodayWh);
+      
+             cmd.Parameters.AddWithValue("@accum_wh", d.AccumWh);
         cmd.Parameters.AddWithValue("@accum_kwh", d.AccumKwh);
 
         cmd.Parameters.AddWithValue("@run_mode", d.RunMode);

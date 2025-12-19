@@ -2,18 +2,16 @@
 using System.Text;
 using EasyModbus;
 
-public class StaticDataReader : IDisposable
+public class StaticDataReader
 {
-    private ModbusClient client;
-    private bool _disposed;
+    private readonly ModbusClient client;
 
-    // ✅ Input Register 기준 시작 주소 (PDF의 30001을 0으로 맞추기 위함)
+    // ✅ Input Register 기준 주소 (30001 -> offset 0)
     private const int INPUT_BASE = 30001;
 
-    public StaticDataReader(string ip, int port)
+    public StaticDataReader(ModbusClient sharedClient)
     {
-        client = new ModbusClient(ip, port);
-        client.Connect();
+        client = sharedClient ?? throw new ArgumentNullException(nameof(sharedClient));
     }
 
     public StaticInfo Read()
@@ -49,14 +47,14 @@ public class StaticDataReader : IDisposable
         info.RemotePort = ReadU16(30036);
 
         // COM2
-        info.Com2Baudrate = ReadU32(30037); // 30037~30038
+        info.Com2Baudrate = ReadU32(30037);
         info.Com2DataBits = ReadU16(30039);
         info.Com2Parity = ReadU16(30040);
         info.Com2StopBit = ReadU16(30041);
         info.Com2FlowControl = ReadU16(30042);
 
         // COM3
-        info.Com3Baudrate = ReadU32(30043); // 30043~30044
+        info.Com3Baudrate = ReadU32(30043);
         info.Com3DataBits = ReadU16(30045);
         info.Com3Parity = ReadU16(30046);
         info.Com3StopBit = ReadU16(30047);
@@ -74,38 +72,29 @@ public class StaticDataReader : IDisposable
         return info;
     }
 
-    // ✅ 여기부터 “Input Register(FC04) + 30001 기준 오프셋”으로 변경
+    // ✅ Input Register 오프셋 변환
+    private int ToInputOffset(int address) => address - INPUT_BASE;
 
-    private int ToInputOffset(int address)
-    {
-        // address=30001 -> 0
-        // address=30002 -> 1 ...
-        int offset = address - INPUT_BASE;
-        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(address), $"Input Register address must be >= {INPUT_BASE}");
-        return offset;
-    }
-
+    // ✅ Holding → Input
     private ushort ReadU16(int address)
-    {
-        return (ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0];
-    }
+        => (ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0];
 
+    // ✅ Holding → Input
     private uint ReadU32(int address)
     {
         var regs = client.ReadInputRegisters(ToInputOffset(address), 2);
 
-        uint low = (uint)regs[0];  // ✅ low = 0
-        uint high = (uint)regs[1];  // ✅ high = 1
+        uint low = (uint)regs[0];
+        uint high = (uint)regs[1];
 
         return (high << 16) | (low & 0xFFFF);
     }
 
-
+    // ✅ Holding → Input (signed)
     private short ReadS16(int address)
-    {
-        return unchecked((short)(ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0]);
-    }
+        => unchecked((short)(ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0]);
 
+    // ✅ Holding → Input
     private string ReadStringF006_Swapped(int address, int length)
     {
         var arr = client.ReadInputRegisters(ToInputOffset(address), length);
@@ -142,30 +131,12 @@ public class StaticDataReader : IDisposable
         return s.Substring(0, cut).Trim();
     }
 
-    public void Dispose()
-    {
-        if (_disposed) return;
-        _disposed = true;
-
-        try
-        {
-            if (client != null && client.Connected)
-            {
-                client.Disconnect();
-            }
-        }
-        catch
-        {
-            // 종료 중 예외는 무시
-        }
-    }
     // ✅ 변경: ip2의 high/low 바이트 swap
     private string MakeIpText(ushort ip1, ushort ip2)
     {
         byte a = (byte)((ip1 >> 8) & 0xFF);
         byte b = (byte)(ip1 & 0xFF);
 
-        // 기존: high, low → 변경: low, high
         byte c = (byte)(ip2 & 0xFF);
         byte d = (byte)((ip2 >> 8) & 0xFF);
 
@@ -178,11 +149,9 @@ public class StaticDataReader : IDisposable
         byte a = (byte)((mac1 >> 8) & 0xFF);
         byte b = (byte)(mac1 & 0xFF);
 
-        // mac2 swap
         byte c = (byte)(mac2 & 0xFF);
         byte d = (byte)((mac2 >> 8) & 0xFF);
 
-        // mac3 swap
         byte e = (byte)(mac3 & 0xFF);
         byte f = (byte)((mac3 >> 8) & 0xFF);
 
