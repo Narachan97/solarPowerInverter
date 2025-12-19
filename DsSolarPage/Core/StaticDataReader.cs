@@ -159,24 +159,32 @@ public class StaticDataReader : IDisposable
             // 종료 중 예외는 무시
         }
     }
-
+    // ✅ 변경: ip2의 high/low 바이트 swap
     private string MakeIpText(ushort ip1, ushort ip2)
     {
         byte a = (byte)((ip1 >> 8) & 0xFF);
         byte b = (byte)(ip1 & 0xFF);
-        byte c = (byte)((ip2 >> 8) & 0xFF);
-        byte d = (byte)(ip2 & 0xFF);
+
+        // 기존: high, low → 변경: low, high
+        byte c = (byte)(ip2 & 0xFF);
+        byte d = (byte)((ip2 >> 8) & 0xFF);
+
         return $"{a}.{b}.{c}.{d}";
     }
 
+    // ✅ 변경: mac2, mac3의 high/low 바이트 swap
     private string MakeMacText(ushort mac1, ushort mac2, ushort mac3)
     {
         byte a = (byte)((mac1 >> 8) & 0xFF);
         byte b = (byte)(mac1 & 0xFF);
-        byte c = (byte)((mac2 >> 8) & 0xFF);
-        byte d = (byte)(mac2 & 0xFF);
-        byte e = (byte)((mac3 >> 8) & 0xFF);
-        byte f = (byte)(mac3 & 0xFF);
+
+        // mac2 swap
+        byte c = (byte)(mac2 & 0xFF);
+        byte d = (byte)((mac2 >> 8) & 0xFF);
+
+        // mac3 swap
+        byte e = (byte)(mac3 & 0xFF);
+        byte f = (byte)((mac3 >> 8) & 0xFF);
 
         return $"{a:X2}:{b:X2}:{c:X2}:{d:X2}:{e:X2}:{f:X2}";
     }
