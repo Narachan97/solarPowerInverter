@@ -24,84 +24,84 @@ public class DynamicDataReader
             MeasuredAt = DateTime.Now
         };
 
-        // ✅ 핵심: 30057 ~ 30099 한번에 읽기 (총 43개)
-        int startAddress = 30057 + offset;
-        int length = 43;
+        data.FaultBits0_15  = ReadU16(30057 + offset);
+        data.FaultBits16_31 = ReadU16(30058 + offset);
+        data.FaultBits32_47 = ReadU16(30059 + offset);
+        data.FaultBits48_63 = ReadU16(30060 + offset);
 
-        int[] regs = client.ReadInputRegisters(ToInputOffset(startAddress), length);
+        data.PvVoltage = ReadU16(30061 + offset);
+        data.PvCurrent = ReadU16(30062 + offset);
+        data.PvPower   = ReadS32(30063 + offset);
 
-        // 👉 index 계산 함수
-        int idx(int addr) => addr - startAddress;
+        data.DcnVoltage   = ReadU16(30065 + offset);
+        data.InvRsVoltage = ReadU16(30066 + offset);
+        data.InvStVoltage = ReadU16(30067 + offset);
+        data.InvTrVoltage = ReadU16(30068 + offset);
 
-        data.FaultBits0_15 = (ushort)regs[idx(30057 + offset)];
-        data.FaultBits16_31 = (ushort)regs[idx(30058 + offset)];
-        data.FaultBits32_47 = (ushort)regs[idx(30059 + offset)];
-        data.FaultBits48_63 = (ushort)regs[idx(30060 + offset)];
+        data.L1Voltage = ReadU16(30069 + offset);
+        data.L2Voltage = ReadU16(30070 + offset);
+        data.L3Voltage = ReadU16(30071 + offset);
 
-        data.PvVoltage = (ushort)regs[idx(30061 + offset)];
-        data.PvCurrent = (ushort)regs[idx(30062 + offset)];
-        data.PvPower = ToS32(regs, idx(30063 + offset));
+        data.L1Current = ReadU16(30072 + offset);
+        data.L2Current = ReadU16(30073 + offset);
+        data.L3Current = ReadU16(30074 + offset);
 
-        data.DcnVoltage = (ushort)regs[idx(30065 + offset)];
-        data.InvRsVoltage = (ushort)regs[idx(30066 + offset)];
-        data.InvStVoltage = (ushort)regs[idx(30067 + offset)];
-        data.InvTrVoltage = (ushort)regs[idx(30068 + offset)];
+        data.ActivePowerTotal   = ReadS32(30075 + offset);
+        data.ReactivePowerTotal = ReadS32(30077 + offset);
+        data.PowerFactorTotal   = ReadU16(30079 + offset);
+        data.Frequency          = ReadU16(30080 + offset);
+        data.StackTemp          = ReadS16(30081 + offset);
 
-        data.L1Voltage = (ushort)regs[idx(30069 + offset)];
-        data.L2Voltage = (ushort)regs[idx(30070 + offset)];
-        data.L3Voltage = (ushort)regs[idx(30071 + offset)];
+        data.Ad0 = ReadS16(30082 + offset);
+        data.Ad1 = ReadS16(30083 + offset);
+        data.Ad2 = ReadS16(30084 + offset);
+        data.Ad3 = ReadS16(30085 + offset);
 
-        data.L1Current = (ushort)regs[idx(30072 + offset)];
-        data.L2Current = (ushort)regs[idx(30073 + offset)];
-        data.L3Current = (ushort)regs[idx(30074 + offset)];
+        data.RestartTime  = ReadS16(30086 + offset);
+        data.RunMode      = ReadU16(30087 + offset);
+        data.AntiPidState = ReadU16(30088 + offset);
 
-        data.ActivePowerTotal = ToS32(regs, idx(30075 + offset));
-        data.ReactivePowerTotal = ToS32(regs, idx(30077 + offset));
-        data.PowerFactorTotal = (ushort)regs[idx(30079 + offset)];
-        data.Frequency = (ushort)regs[idx(30080 + offset)];
-        data.StackTemp = ToS16(regs[idx(30081 + offset)]);
+        data.AccumWh  = ReadU16(30090 + offset);
+        data.AccumKwh = ReadU32(30091 + offset);
+        data.TodayWh  = ReadU32(30093 + offset);
 
-        data.Ad0 = ToS16(regs[idx(30082 + offset)]);
-        data.Ad1 = ToS16(regs[idx(30083 + offset)]);
-        data.Ad2 = ToS16(regs[idx(30084 + offset)]);
-        data.Ad3 = ToS16(regs[idx(30085 + offset)]);
-
-        data.RestartTime = ToS16(regs[idx(30086 + offset)]);
-        data.RunMode = (ushort)regs[idx(30087 + offset)];
-        data.AntiPidState = (ushort)regs[idx(30088 + offset)];
-
-        data.AccumWh = (ushort)regs[idx(30090 + offset)];
-        data.AccumKwh = ToU32(regs, idx(30091 + offset));
-        data.TodayWh = ToU32(regs, idx(30093 + offset));
-
-        data.PeakPowerInstall = ToU32(regs, idx(30095 + offset));
-        data.PeakPowerToday = ToU32(regs, idx(30097 + offset));
-        data.MaxActivePower = (ushort)regs[idx(30099 + offset)];
+        data.PeakPowerInstall = ReadU32(30095 + offset);
+        data.PeakPowerToday   = ReadU32(30097 + offset);
+        data.MaxActivePower   = ReadU16(30099 + offset);
 
         return data;
     }
 
     // ===============================
-    // 변환 함수 (기존 Read 대신 사용)
+    // Input Register Read Functions
     // ===============================
 
     private int ToInputOffset(int address)
         => address - INPUT_BASE;
 
-    private short ToS16(int value)
-        => unchecked((short)(ushort)value);
+    private ushort ReadU16(int address)
+        => (ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0];
 
-    private int ToS32(int[] regs, int index)
+    private short ReadS16(int address)
+        => unchecked((short)(ushort)client.ReadInputRegisters(ToInputOffset(address), 1)[0]);
+
+    private int ReadS32(int address)
     {
-        int low = regs[index];
-        int high = regs[index + 1];
+        int[] regs = client.ReadInputRegisters(ToInputOffset(address), 2);
+
+        int low  = regs[0];
+        int high = regs[1];
+
         return (high << 16) | (low & 0xFFFF);
     }
 
-    private uint ToU32(int[] regs, int index)
+    private uint ReadU32(int address)
     {
-        uint low = (uint)regs[index];
-        uint high = (uint)regs[index + 1];
+        int[] regs = client.ReadInputRegisters(ToInputOffset(address), 2);
+
+        uint low  = (uint)regs[0];
+        uint high = (uint)regs[1];
+
         return (high << 16) | (low & 0xFFFF);
     }
 }
