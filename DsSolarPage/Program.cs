@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using EasyModbus;
 using EasyModbus.Exceptions;
 using MySql.Data.MySqlClient;
@@ -84,7 +86,9 @@ internal class Program
             }
             catch (Exception exOuter)
             {
-                string summary = $"[통신/사이클 오류] {exOuter.Message}";
+                string netCheck = NetworkDiagnostic.Check(ctx.InverterIp, ctx.Port);
+
+                string summary = $"[통신/사이클 오류] {exOuter.Message} / {netCheck}";
                 string level = (exOuter is ConnectionException || exOuter is System.Net.Sockets.SocketException) ? "MODBUS_CONNECT" : "UNKNOWN_CYCLE";
 
                 logger.SafeInsertError(ctx, level, summary, exOuter);
@@ -120,6 +124,55 @@ internal class Program
             int elapsedMs = (int)(DateTime.Now - cycleStart).TotalMilliseconds;
             int sleepTime = Math.Max(0, delayMs - elapsedMs);
             Thread.Sleep(sleepTime);
+        }
+    }
+}
+
+// =====================
+// 네트워크 진단부
+// =====================
+public static class NetworkDiagnostic
+{
+    public static string Check(string ip, int port)
+    {
+        bool pingOk = PingCheck(ip);
+        bool portOk = PortCheck(ip, port, 3000);
+
+        return $"NET_CHECK ping={(pingOk ? "OK" : "FAIL")}, port{port}={(portOk ? "OK" : "FAIL")}";
+    }
+
+    private static bool PingCheck(string ip)
+    {
+        try
+        {
+            using var ping = new Ping();
+            var reply = ping.Send(ip, 3000);
+            return reply.Status == IPStatus.Success;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool PortCheck(string ip, int port, int timeoutMs)
+    {
+        try
+        {
+            using var client = new TcpClient();
+
+            IAsyncResult result = client.BeginConnect(ip, port, null, null);
+            bool success = result.AsyncWaitHandle.WaitOne(timeoutMs);
+
+            if (!success)
+                return false;
+
+            client.EndConnect(result);
+            return client.Connected;
+        }
+        catch
+        {
+            return false;
         }
     }
 }
@@ -229,7 +282,9 @@ public class StaticCollector
         }
         catch (Exception ex)
         {
-            string summary = $"[정적/오류] {ex.Message}";
+            string netCheck = NetworkDiagnostic.Check(ctx.InverterIp, ctx.Port);
+
+            string summary = $"[정적/오류] {ex.Message} / {netCheck}";
             string level = (ex is ConnectionException || ex is System.IO.IOException) ? "MODBUS_READ_STATIC" : "DB_STATIC";
 
             logger.SafeInsertError(ctx, level, summary, ex);
@@ -265,7 +320,9 @@ public class DynamicCollector
             }
             catch (Exception exRead)
             {
-                string summary = $"[동적/READ 오류] stack={stackNo} {exRead.Message}";
+                string netCheck = NetworkDiagnostic.Check(ctx.InverterIp, ctx.Port);
+
+                string summary = $"[동적/READ 오류] stack={stackNo} {exRead.Message} / {netCheck}";
                 logger.SafeInsertError(ctx, "MODBUS_READ_DYNAMIC", summary, exRead);
                 Console.WriteLine(summary);
 
