@@ -31,6 +31,14 @@ internal class Program
             DateTime cycleStart = DateTime.Now;
             ModbusClient cycleClient = null;
 
+            // 통신 오류 발생 후 10분간 재접속 대기
+            if (DateTime.Now < ctx.ModbusRetryAfter)
+            {
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [통신] 재접속 대기 중 → {ctx.ModbusRetryAfter:HH:mm:ss} 이후 재시도");
+                Thread.Sleep(delayMs);
+                continue;
+            }
+
             try
             {
                 // 1. 매 사이클마다 새로운 소켓 생성 및 타임아웃 5초 설정
@@ -39,6 +47,9 @@ internal class Program
 
                 // 연결 시도
                 cycleClient.Connect();
+
+                // 연결 성공 시 재접속 대기 상태 초기화
+                ctx.ModbusRetryAfter = DateTime.MinValue;
 
                 // Reader 객체 초기화
                 ctx.StaticReader = new StaticDataReader(cycleClient);
@@ -81,6 +92,10 @@ internal class Program
 
                 // 통신 실패 시 다음 사이클에 정적 데이터부터 다시 읽도록 플래그 설정
                 ctx.StaticNeedsRefresh = true;
+
+                // 통신 오류 발생 시 10분간 재접속 대기
+                ctx.ModbusRetryAfter = DateTime.Now.AddMinutes(10);
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [통신] 오류 발생 → 10분 후 재접속 예정 ({ctx.ModbusRetryAfter:HH:mm:ss})");
             }
             finally
             {
@@ -123,6 +138,9 @@ public class CollectorContext
 
     public string DeviceId { get; set; } = "";
     public bool StaticNeedsRefresh { get; set; } = true;
+
+    // 통신 오류 발생 시 재접속을 일정 시간 미루기 위한 시간값
+    public DateTime ModbusRetryAfter { get; set; } = DateTime.MinValue;
 
     public Dictionary<string, ErrGate> ErrState { get; } = new();
 
@@ -217,7 +235,15 @@ public class StaticCollector
             logger.SafeInsertError(ctx, level, summary, ex);
             Console.WriteLine(summary);
 
-            if (!(ex is MySqlException)) ctx.StaticNeedsRefresh = true;
+            if (!(ex is MySqlException))
+            {
+                ctx.StaticNeedsRefresh = true;
+
+                // 정적 데이터 읽기 중 통신 오류 발생 시 10분간 재접속 대기
+                ctx.ModbusRetryAfter = DateTime.Now.AddMinutes(10);
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [통신] 정적 READ 오류 → 10분 후 재접속 예정 ({ctx.ModbusRetryAfter:HH:mm:ss})");
+            }
+
             return false;
         }
     }
@@ -242,6 +268,11 @@ public class DynamicCollector
                 string summary = $"[동적/READ 오류] stack={stackNo} {exRead.Message}";
                 logger.SafeInsertError(ctx, "MODBUS_READ_DYNAMIC", summary, exRead);
                 Console.WriteLine(summary);
+
+                // 동적 데이터 읽기 중 통신 오류 발생 시 10분간 재접속 대기
+                ctx.ModbusRetryAfter = DateTime.Now.AddMinutes(10);
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [통신] 동적 READ 오류 → 10분 후 재접속 예정 ({ctx.ModbusRetryAfter:HH:mm:ss})");
+
                 // 즉시 읽기 중단 (finally 블록에서 통신은 끊어짐)
                 break;
             }
