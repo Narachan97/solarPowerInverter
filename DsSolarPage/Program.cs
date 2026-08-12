@@ -16,7 +16,7 @@ internal class Program
         // 설정
         string inverterIp = "192.168.21.10";
         int port = 502;
-        string connStr = "server=158.247.214.46;port=3306;Database=dsSolar;Uid=_hoo;Pwd=Dsplm7433mysql##;";
+        string connStr = "server=158.247.202.178;port=3306;Database=dsSolar;Uid=_hoo;Pwd=Dsplm7433mysql##;";
 
         var ctx = new CollectorContext(inverterIp, port, connStr);
         var logger = new ErrorGateLogger();
